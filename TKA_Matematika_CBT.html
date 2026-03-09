@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBT TKA Matematika SMP</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b3e;
+    --navy2: #162552;
+    --blue: #2563eb;
+    --blue-light: #3b82f6;
+    --accent: #f59e0b;
+    --accent2: #fbbf24;
+    --green: #10b981;
+    --red: #ef4444;
+    --bg: #f0f4ff;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --correct: #dcfce7;
+    --wrong: #fee2e2;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #1e3a8a 100%);
+    color: white;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(13,27,62,.4);
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .header-badge {
+    background: var(--accent);
+    color: var(--navy);
+    font-weight: 800;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .header h1 {
+    font-size: 16px;
+    font-weight: 700;
+    flex: 1;
+  }
+  .header h1 span { color: var(--accent2); }
+  #timer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    background: rgba(255,255,255,.12);
+    padding: 6px 14px;
+    border-radius: 8px;
+    color: #fff;
+    letter-spacing: 1px;
+    border: 1px solid rgba(255,255,255,.2);
+    transition: background .3s;
+  }
+  #timer.urgent { background: rgba(239,68,68,.4); animation: pulse .8s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    background: var(--navy);
+    padding: 0 20px 10px;
+  }
+  .progress-inner { max-width: 900px; margin: 0 auto; }
+  .progress-info { display:flex; justify-content:space-between; font-size:11px; color:rgba(255,255,255,.6); margin-bottom:5px; }
+  .progress-bar {
+    height: 5px;
+    background: rgba(255,255,255,.15);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width .4s ease;
+  }
+
+  /* ── MAIN ── */
+  .main { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+
+  /* ── SOAL NAVIGATOR ── */
+  .nav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+    gap: 6px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  }
+  .nav-btn {
+    aspect-ratio: 1;
+    border: 2px solid var(--border);
+    background: white;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .18s;
+    color: var(--muted);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .nav-btn:hover { border-color: var(--blue-light); color: var(--blue); }
+  .nav-btn.answered { background: var(--navy); border-color: var(--navy); color: white; }
+  .nav-btn.active { background: var(--blue); border-color: var(--blue); color: white; transform: scale(1.12); }
+  .nav-btn.pgk { border-style: dashed; }
+  .nav-btn.bs-type { border-radius: 50%; }
+
+  .legend { display:flex; gap:12px; margin-top:10px; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--muted); }
+  .legend-dot { width:12px; height:12px; border-radius:3px; border:2px solid; }
+
+  /* ── CARD SOAL ── */
+  .soal-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: 0 2px 16px rgba(0,0,0,.07);
+    margin-bottom: 20px;
+    animation: fadeIn .25s ease;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  .soal-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .soal-num {
+    background: var(--navy);
+    color: white;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 4px 14px;
+    border-radius: 8px;
+  }
+  .tipe-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .tipe-pg   { background:#dbeafe; color:#1d4ed8; }
+  .tipe-pgk  { background:#fef3c7; color:#b45309; }
+  .tipe-bs   { background:#d1fae5; color:#065f46; }
+
+  .konteks-box {
+    background: #f8faff;
+    border-left: 4px solid var(--blue);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    color: var(--text);
+    white-space: pre-line;
+  }
+  .instruksi {
+    font-size: 12.5px;
+    color: #dc2626;
+    font-weight: 600;
+    font-style: italic;
+    margin-bottom: 12px;
+    padding: 6px 12px;
+    background: #fff1f2;
+    border-radius: 6px;
+    border: 1px solid #fecdd3;
+  }
+  .pertanyaan {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  /* ── OPTIONS ── */
+  .options { display:flex; flex-direction:column; gap:10px; }
+
+  .option-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    text-align: left;
+    transition: all .18s;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .option-btn:hover:not(.disabled) { border-color: var(--blue-light); background: #eff6ff; }
+  .option-btn .opt-label {
+    min-width: 28px;
+    height: 28px;
+    background: var(--bg);
+    border-radius: 6px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--navy);
+    flex-shrink: 0;
+  }
+  .option-btn.selected { border-color: var(--blue); background: #eff6ff; }
+  .option-btn.selected .opt-label { background: var(--blue); color: white; }
+  .option-btn.correct { border-color: var(--green); background: var(--correct); }
+  .option-btn.correct .opt-label { background: var(--green); color: white; }
+  .option-btn.wrong { border-color: var(--red); background: var(--wrong); }
+  .option-btn.wrong .opt-label { background: var(--red); color: white; }
+  .option-btn.disabled { cursor: default; }
+
+  /* PGK checkboxes */
+  .option-btn.pgk-opt { }
+  .option-btn.pgk-opt .opt-label { border-radius: 4px; border: 2px solid var(--border); background: white; }
+  .option-btn.pgk-opt.selected .opt-label {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--navy);
+  }
+
+  /* ── BENAR SALAH TABLE ── */
+  .bs-table { width:100%; border-collapse: collapse; margin-top: 8px; }
+  .bs-table th {
+    background: var(--navy);
+    color: white;
+    padding: 10px 14px;
+    font-size: 12px;
+    text-align: left;
+  }
+  .bs-table th:last-child, .bs-table th:nth-last-child(2) { text-align: center; width: 80px; }
+  .bs-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+    vertical-align: middle;
+  }
+  .bs-table tr:nth-child(even) td { background: #f8faff; }
+  .bs-label { width:32px; font-weight:700; color:var(--navy); }
+  .bs-radio {
+    display:flex; align-items:center; justify-content:center;
+  }
+  .bs-radio input[type=radio] { display:none; }
+  .bs-radio label {
+    width: 30px; height: 30px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    cursor: pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 14px;
+    transition: all .18s;
+    background: white;
+  }
+  .bs-radio label:hover { border-color: var(--blue); }
+  .bs-radio input:checked + label { border-color: var(--blue); background: var(--blue); color: white; }
+  .bs-radio.benar input:checked + label { background: var(--green); border-color: var(--green); }
+  .bs-radio.salah input:checked + label { background: var(--red); border-color: var(--red); }
+
+  /* ── PEMBAHASAN ── */
+  .pembahasan {
+    margin-top: 18px;
+    border-top: 2px dashed var(--border);
+    padding-top: 16px;
+    display: none;
+    animation: fadeIn .3s ease;
+  }
+  .pembahasan.show { display: block; }
+  .pemb-header {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .rumus-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1d4ed8;
+    margin-bottom: 10px;
+  }
+  .step { font-size: 13px; color: var(--text); margin-bottom: 5px; padding-left: 18px; position:relative; line-height:1.6; }
+  .step::before { content: "→"; position:absolute; left:0; color:var(--blue); font-weight:700; }
+  .jawaban-final {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #dcfce7;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: #065f46;
+    border: 1px solid #86efac;
+  }
+  /* BS pembahasan table */
+  .bs-pemb-row { border-bottom: 1px solid var(--border); padding: 8px 0; font-size: 13px; }
+  .bs-pemb-label { font-weight:700; color: var(--navy); margin-right:8px; }
+  .bs-pemb-jawaban { display:inline-block; padding:1px 8px; border-radius:4px; font-size:11px; font-weight:700; margin-right:8px; }
+  .bs-pemb-jawaban.benar { background:#dcfce7; color:#065f46; }
+  .bs-pemb-jawaban.salah { background:#fee2e2; color:#991b1b; }
+
+  /* ── ACTIONS ── */
+  .actions {
+    display:flex; gap:10px; flex-wrap:wrap;
+    margin-top: 4px;
+  }
+  .btn {
+    padding: 11px 22px;
+    border-radius: 10px;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .18s;
+    display:flex; align-items:center; gap:7px;
+  }
+  .btn-primary { background: var(--blue); color: white; }
+  .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+  .btn-outline { background: white; color: var(--navy); border: 2px solid var(--border); }
+  .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+  .btn-accent { background: var(--accent); color: var(--navy); }
+  .btn-accent:hover { background: var(--accent2); }
+  .btn-green { background: var(--green); color: white; }
+  .btn-green:hover { background: #059669; }
+  .btn:disabled { opacity:.4; cursor:default; transform:none !important; }
+
+  /* ── RESULT SCREEN ── */
+  #result-screen {
+    display: none;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 40px 28px;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,.1);
+    animation: fadeIn .4s ease;
+  }
+  .result-emoji { font-size: 64px; margin-bottom: 12px; }
+  .result-title { font-size: 28px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+  .result-sub { font-size: 15px; color: var(--muted); margin-bottom: 28px; }
+  .score-big {
+    font-size: 72px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--blue);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .score-label { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .stat-box {
+    padding: 16px 10px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+  }
+  .stat-box.correct-box { border-color: var(--green); background: var(--correct); }
+  .stat-box.wrong-box { border-color: var(--red); background: var(--wrong); }
+  .stat-box.skip-box { border-color: var(--border); background: #f8faff; }
+  .stat-num { font-size: 28px; font-weight: 800; }
+  .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .correct-box .stat-num { color: var(--green); }
+  .wrong-box .stat-num { color: var(--red); }
+  .predikat {
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  /* ── REVIEW ── */
+  #review-section { display:none; margin-top: 24px; }
+  .review-item {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
+    border-left: 4px solid var(--border);
+    box-shadow: 0 1px 8px rgba(0,0,0,.05);
+  }
+  .review-item.correct { border-left-color: var(--green); }
+  .review-item.wrong { border-left-color: var(--red); }
+  .review-item.partial { border-left-color: var(--accent); }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:600px) {
+    .soal-card { padding: 18px; }
+    .header-inner { padding: 12px 14px; }
+    .stats-grid { grid-template-columns: repeat(3,1fr); }
+    .score-big { font-size: 56px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <span class="header-badge">TKA</span>
+    <h1>Latihan Soal <span>Matematika SMP</span></h1>
+    <div id="timer">45:00</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-inner">
+      <div class="progress-info">
+        <span id="progress-text">Soal 1 dari 20</span>
+        <span id="answered-count">0 dijawab</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:5%"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- NAVIGATOR -->
+  <div class="nav-grid" id="nav-grid"></div>
+
+  <!-- SOAL AREA -->
+  <div id="soal-area">
+    <div class="soal-card" id="soal-card"></div>
+    <div class="actions" id="actions"></div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="result-screen"></div>
+
+  <!-- REVIEW SECTION -->
+  <div id="review-section"></div>
+
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// DATA SOAL
+// ════════════════════════════════════════════════════════
+const soalData = [
+  // ── PILIHAN GANDA BIASA ──────────────────────────────
+  {
+    no:1, tipe:"pg",
+    konteks:"Sebuah toko buku menjual novel dengan harga Rp45.000 per buku. Toko memberikan diskon 20% untuk pembelian minimal 3 buku.",
+    tanya:"Jika Rara membeli 4 buku novel, berapa total yang harus dibayar Rara?",
+    opsi:["Rp144.000","Rp162.000","Rp180.000","Rp126.000"],
+    jawaban:"A",
+    rumus:"Harga setelah diskon = harga asal × (1 – diskon%)",
+    langkah:["Harga 1 buku = Rp45.000","Beli 4 buku → syarat diskon terpenuhi (≥3 buku)","Diskon 20% → harga/buku = 45.000 × 0,80 = Rp36.000","Total 4 buku = 4 × 36.000 = Rp144.000"],
+    jawabanFinal:"✅ Jawaban: A. Rp144.000"
+  },
+  {
+    no:2, tipe:"pg",
+    konteks:"Pak Budi memiliki kebun berbentuk persegi panjang. Panjang kebun adalah (3x + 2) meter dan lebarnya (x + 4) meter.",
+    tanya:"Jika keliling kebun adalah 44 meter, berapakah nilai x?",
+    opsi:["2","3","4","5"],
+    jawaban:"C",
+    rumus:"Keliling persegi panjang = 2 × (panjang + lebar)",
+    langkah:["K = 2(p + l) = 44 → p + l = 22","(3x+2) + (x+4) = 22","4x + 6 = 22 → 4x = 16 → x = 4","Cek: p = 3(4)+2 = 14, l = 4+4 = 8 → K = 2(22) = 44 ✓"],
+    jawabanFinal:"✅ Jawaban: C. x = 4"
+  },
+  {
+    no:3, tipe:"pg",
+    konteks:"Data nilai ulangan Matematika 7 siswa: 65, 70, 80, 75, 90, 70, 85.",
+    tanya:"Nilai rata-rata ulangan tersebut adalah ...",
+    opsi:["72,5","75,0","76,4","77,5"],
+    jawaban:"C",
+    rumus:"Rata-rata = jumlah data ÷ banyak data",
+    langkah:["Jumlah = 65+70+80+75+90+70+85 = 535","Banyak data = 7","Rata-rata = 535 ÷ 7 = 76,43 ≈ 76,4"],
+    jawabanFinal:"✅ Jawaban: C. 76,4"
+  },
+  {
+    no:4, tipe:"pg",
+    konteks:"Sebuah kolam renang berbentuk balok memiliki panjang 10 m, lebar 4 m, dan kedalaman 2 m. Kolam akan diisi air hingga penuh.",
+    tanya:"Berapa liter air yang dibutuhkan? (1 m³ = 1.000 liter)",
+    opsi:["60.000 liter","80.000 liter","100.000 liter","120.000 liter"],
+    jawaban:"B",
+    rumus:"Volume balok = p × l × t",
+    langkah:["V = 10 × 4 × 2 = 80 m³","Konversi: 80 × 1.000 = 80.000 liter"],
+    jawabanFinal:"✅ Jawaban: B. 80.000 liter"
+  },
+  {
+    no:5, tipe:"pg",
+    konteks:"Dua buah roda gigi terhubung. Roda A memiliki 24 gigi dan roda B memiliki 36 gigi. Roda A berputar 9 kali.",
+    tanya:"Berapa kali roda B berputar?",
+    opsi:["4 kali","5 kali","6 kali","8 kali"],
+    jawaban:"C",
+    rumus:"Gigi A × putaran A = Gigi B × putaran B",
+    langkah:["24 × 9 = 36 × n","216 = 36n → n = 6"],
+    jawabanFinal:"✅ Jawaban: C. 6 kali"
+  },
+  {
+    no:6, tipe:"pg",
+    konteks:"Dalam sebuah kelas terdapat 30 siswa. 18 siswa menyukai basket, 15 siswa menyukai voli, dan 8 siswa menyukai keduanya.",
+    tanya:"Berapa siswa yang tidak menyukai keduanya?",
+    opsi:["3","4","5","6"],
+    jawaban:"C",
+    rumus:"n(A∪B) = n(A) + n(B) – n(A∩B)",
+    langkah:["n(basket ∪ voli) = 18 + 15 – 8 = 25","Tidak menyukai keduanya = 30 – 25 = 5"],
+    jawabanFinal:"✅ Jawaban: C. 5 siswa"
+  },
+  {
+    no:7, tipe:"pg",
+    konteks:"Sebuah tangga disandarkan ke dinding. Kaki tangga berjarak 5 m dari dinding dan panjang tangga adalah 13 m.",
+    tanya:"Setinggi berapa tangga menyandar pada dinding?",
+    opsi:["10 m","11 m","12 m","14 m"],
+    jawaban:"C",
+    rumus:"Teorema Pythagoras: tinggi² = tangga² – jarak²",
+    langkah:["tinggi² = 13² – 5² = 169 – 25 = 144","tinggi = √144 = 12 m"],
+    jawabanFinal:"✅ Jawaban: C. 12 m"
+  },
+  {
+    no:8, tipe:"pg",
+    konteks:"Sebuah tabungan awal Rp2.000.000 dengan bunga sederhana 5% per tahun.",
+    tanya:"Berapa total tabungan setelah 3 tahun?",
+    opsi:["Rp2.100.000","Rp2.200.000","Rp2.300.000","Rp2.500.000"],
+    jawaban:"C",
+    rumus:"Total = modal + (modal × suku bunga × waktu)",
+    langkah:["Bunga/tahun = 2.000.000 × 5% = Rp100.000","Bunga 3 tahun = 3 × 100.000 = Rp300.000","Total = 2.000.000 + 300.000 = Rp2.300.000"],
+    jawabanFinal:"✅ Jawaban: C. Rp2.300.000"
+  },
+
+  // ── PILIHAN GANDA KOMPLEKS ───────────────────────────
+  {
+    no:9, tipe:"pgk",
+    instruksi:"Pilih semua pernyataan yang BENAR! Jawaban benar lebih dari satu.",
+    konteks:"Sebuah ojek online mengenakan tarif:\n• Biaya dasar: Rp5.000\n• Biaya per km: Rp2.500\nSeorang pelanggan memiliki saldo maksimal Rp30.000.",
+    tanya:"Manakah pernyataan yang benar?",
+    opsi:[
+      "A. Jika x = jarak (km), model matematikanya: 2.500x + 5.000 ≤ 30.000",
+      "B. Jarak maksimum yang bisa ditempuh adalah 10 km",
+      "C. Jika jarak 11 km, biaya total melebihi saldo pelanggan",
+      "D. Penambahan 1 km menambah biaya Rp5.000"
+    ],
+    jawaban:["A","B","C"],
+    rumus:"Model pertidaksamaan: biaya tetap + (biaya/km × jarak) ≤ anggaran",
+    langkah:[
+      "Model: 2.500x + 5.000 ≤ 30.000 → A BENAR ✓",
+      "2.500x ≤ 25.000 → x ≤ 10 → B BENAR ✓",
+      "x=11: 2.500(11)+5.000 = 32.500 > 30.000 → C BENAR ✓",
+      "Biaya per km = Rp2.500 (bukan 5.000) → D SALAH ✗"
+    ],
+    jawabanFinal:"✅ Jawaban: A, B, C"
+  },
+  {
+    no:10, tipe:"pgk",
+    instruksi:"Pilih semua pernyataan yang BENAR! Jawaban benar lebih dari satu.",
+    konteks:"Data tinggi badan (cm) 8 siswa: 72, 68, 75, 80, 68, 77, 80, 80",
+    tanya:"Manakah pernyataan yang benar tentang data tersebut?",
+    opsi:[
+      "A. Modus data tersebut adalah 80",
+      "B. Median data tersebut adalah 76",
+      "C. Rata-rata data tersebut adalah 75",
+      "D. Jangkauan data tersebut adalah 12"
+    ],
+    jawaban:["A","B","C","D"],
+    rumus:"Modus=terbanyak, Median=tengah, Mean=rata-rata, Jangkauan=maks–min",
+    langkah:[
+      "Urut: 68,68,72,75,77,80,80,80",
+      "Modus = 80 (muncul 3×) → A BENAR ✓",
+      "Median = (75+77)/2 = 76 → B BENAR ✓",
+      "Rata² = 600/8 = 75 → C BENAR ✓",
+      "Jangkauan = 80–68 = 12 → D BENAR ✓"
+    ],
+    jawabanFinal:"✅ Jawaban: A, B, C, D"
+  },
+  {
+    no:11, tipe:"pgk",
+    instruksi:"Pilih semua pernyataan yang BENAR! Jawaban benar lebih dari satu.",
+    konteks:"Sebuah perusahaan catering menetapkan harga:\n• Biaya sewa tempat: Rp500.000\n• Biaya per porsi: Rp25.000\nPanitia memiliki anggaran tidak lebih dari Rp3.000.000.",
+    tanya:"Manakah pernyataan yang benar?",
+    opsi:[
+      "A. Model matematika: 25.000n + 500.000 ≤ 3.000.000",
+      "B. Maksimal porsi yang bisa dipesan adalah 100 porsi",
+      "C. Jika dipesan 110 porsi, anggaran masih mencukupi",
+      "D. Biaya untuk 80 porsi adalah Rp2.500.000"
+    ],
+    jawaban:["A","B","D"],
+    rumus:"Model: biaya tetap + (harga/porsi × jumlah) ≤ anggaran",
+    langkah:[
+      "Model: 25.000n + 500.000 ≤ 3.000.000 → A BENAR ✓",
+      "25.000n ≤ 2.500.000 → n ≤ 100 → B BENAR ✓",
+      "110 porsi: 2.750.000+500.000 = 3.250.000 > 3.000.000 → C SALAH ✗",
+      "80 porsi: 2.000.000+500.000 = 2.500.000 → D BENAR ✓"
+    ],
+    jawabanFinal:"✅ Jawaban: A, B, D"
+  },
+  {
+    no:12, tipe:"pgk",
+    instruksi:"Pilih semua pernyataan yang BENAR! Jawaban benar lebih dari satu.",
+    konteks:"Perhatikan bentuk aljabar: (x + 5)(2x – 3) – (x + 5)(x – 1)",
+    tanya:"Manakah pernyataan yang benar tentang bentuk aljabar tersebut?",
+    opsi:[
+      "A. Bentuk sederhananya adalah (x + 5)(x – 2)",
+      "B. Nilai ekspresi untuk x = 3 adalah 8",
+      "C. Salah satu faktor ekspresi adalah (x + 5)",
+      "D. Ekspresi bernilai nol jika x = –5 atau x = 2"
+    ],
+    jawaban:["A","B","C","D"],
+    rumus:"Faktorkan dengan mengambil faktor sekutu (x+5)",
+    langkah:[
+      "(x+5)[(2x–3)–(x–1)] = (x+5)(x–2) → A BENAR ✓",
+      "x=3: (3+5)(3–2) = 8×1 = 8 → B BENAR ✓",
+      "Faktor = (x+5) → C BENAR ✓",
+      "x=–5 atau x=2 → nol → D BENAR ✓"
+    ],
+    jawabanFinal:"✅ Jawaban: A, B, C, D"
+  },
+  {
+    no:13, tipe:"pgk",
+    instruksi:"Pilih semua pernyataan yang BENAR! Jawaban benar lebih dari satu.",
+    konteks:"Sebuah proyek dapat diselesaikan oleh 12 pekerja dalam 30 hari.",
+    tanya:"Manakah pernyataan yang benar?",
+    opsi:[
+      "A. Jika hanya 8 pekerja, proyek selesai dalam 45 hari",
+      "B. Jika ingin selesai dalam 20 hari, dibutuhkan 18 pekerja",
+      "C. Jumlah pekerja berbanding terbalik dengan waktu pengerjaan",
+      "D. Jika pekerja ditambah 3 orang, proyek selesai dalam 26 hari"
+    ],
+    jawaban:["A","B","C"],
+    rumus:"Perbandingan terbalik: pekerja₁ × hari₁ = pekerja₂ × hari₂",
+    langkah:[
+      "Total = 12 × 30 = 360 (orang·hari)",
+      "8 pekerja: 360 ÷ 8 = 45 hari → A BENAR ✓",
+      "20 hari: 360 ÷ 20 = 18 pekerja → B BENAR ✓",
+      "Semakin banyak pekerja, makin cepat → C BENAR ✓",
+      "15 pekerja: 360 ÷ 15 = 24 hari (bukan 26) → D SALAH ✗"
+    ],
+    jawabanFinal:"✅ Jawaban: A, B, C"
+  },
+  {
+    no:14, tipe:"pgk",
+    instruksi:"Pilih semua pernyataan yang BENAR! Jawaban benar lebih dari satu.",
+    konteks:"Sebuah kantong berisi 5 bola merah, 3 bola biru, dan 2 bola hijau. Satu bola diambil secara acak.",
+    tanya:"Manakah pernyataan yang benar?",
+    opsi:[
+      "A. Peluang terambilnya bola merah adalah 1/2",
+      "B. Peluang terambilnya bola biru adalah 3/10",
+      "C. Peluang terambilnya bola hijau lebih besar dari bola biru",
+      "D. Peluang tidak terambil bola merah adalah 1/2"
+    ],
+    jawaban:["A","B","D"],
+    rumus:"P(kejadian) = banyak kejadian yang diinginkan ÷ total semua kemungkinan",
+    langkah:[
+      "Total = 5+3+2 = 10 bola",
+      "P(merah) = 5/10 = 1/2 → A BENAR ✓",
+      "P(biru) = 3/10 → B BENAR ✓",
+      "P(hijau)=2/10=1/5 < P(biru)=3/10 → C SALAH ✗",
+      "P(bukan merah) = 1–1/2 = 1/2 → D BENAR ✓"
+    ],
+    jawabanFinal:"✅ Jawaban: A, B, D"
+  },
+
+  // ── BENAR / SALAH ────────────────────────────────────
+  {
+    no:15, tipe:"bs",
+    instruksi:"Tentukan BENAR atau SALAH untuk setiap pernyataan berikut!",
+    konteks:"Diketahui sistem persamaan linear:\n2x + py = 10\nqx – 3y = 7\nmempunyai solusi (x, y) = (2, 2).",
+    pernyataan:[
+      {label:"A", teks:"Nilai p = 3", jawaban:"Benar", pemb:"2(2)+p(2)=10 → 4+2p=10 → p=3 ✓"},
+      {label:"B", teks:"Nilai q = 5", jawaban:"Salah", pemb:"q(2)–3(2)=7 → 2q=13 → q=6,5 (bukan 5) ✗"},
+      {label:"C", teks:"Nilai p + q = 9,5", jawaban:"Benar", pemb:"p=3, q=6,5 → p+q=9,5 ✓"},
+      {label:"D", teks:"p merupakan bilangan prima", jawaban:"Benar", pemb:"p=3 adalah bilangan prima ✓"}
+    ]
+  },
+  {
+    no:16, tipe:"bs",
+    instruksi:"Tentukan BENAR atau SALAH untuk setiap pernyataan berikut!",
+    konteks:"Diketahui data penjualan kue (loyang) selama 6 hari: 12, 15, 18, 15, 20, 14",
+    pernyataan:[
+      {label:"A", teks:"Rata-rata penjualan adalah 15,67 loyang per hari", jawaban:"Benar", pemb:"Jumlah=94; rata²=94÷6=15,67 ✓"},
+      {label:"B", teks:"Median data tersebut adalah 15", jawaban:"Benar", pemb:"Urut: 12,14,15,15,18,20 → median=(15+15)/2=15 ✓"},
+      {label:"C", teks:"Modus data tersebut adalah 18", jawaban:"Salah", pemb:"Modus=15 (muncul 2×), bukan 18 ✗"},
+      {label:"D", teks:"Jangkauan data tersebut adalah 8", jawaban:"Benar", pemb:"Jangkauan=20–12=8 ✓"}
+    ]
+  },
+  {
+    no:17, tipe:"bs",
+    instruksi:"Tentukan BENAR atau SALAH untuk setiap pernyataan berikut!",
+    konteks:"Sebuah taman berbentuk persegi panjang dengan panjang (2x + 3) m dan lebar (x + 1) m. Luas taman = 54 m².",
+    pernyataan:[
+      {label:"A", teks:"Persamaan situasi ini adalah 2x² + 5x + 3 = 54", jawaban:"Benar", pemb:"(2x+3)(x+1)=2x²+5x+3=54 ✓"},
+      {label:"B", teks:"Nilai x yang memenuhi adalah x = 4", jawaban:"Salah", pemb:"Coba x=4: 2(16)+5(4)+3=51 ≠ 54 ✗ (x≈4,3)"},
+      {label:"C", teks:"Keliling taman jika x = 4 adalah 32 m", jawaban:"Benar", pemb:"p=11, l=5 → K=2(16)=32 m ✓"},
+      {label:"D", teks:"Luas taman bertambah jika nilai x diperbesar", jawaban:"Benar", pemb:"Semakin besar x, panjang & lebar bertambah ✓"}
+    ]
+  },
+  {
+    no:18, tipe:"bs",
+    instruksi:"Tentukan BENAR atau SALAH untuk setiap pernyataan berikut!",
+    konteks:"Misalkan m dan n adalah bilangan real:\n3m + 2n = 16\nm – n = 1",
+    pernyataan:[
+      {label:"A", teks:"Nilai m = 18/5", jawaban:"Benar", pemb:"m=n+1; sub: 5n+3=16 → n=13/5; m=18/5 ✓"},
+      {label:"B", teks:"Nilai n = 13/5", jawaban:"Benar", pemb:"n = 13/5 ✓"},
+      {label:"C", teks:"Nilai m + n = 31/5", jawaban:"Benar", pemb:"18/5 + 13/5 = 31/5 ✓"},
+      {label:"D", teks:"Nilai 2m – n = 23/5", jawaban:"Benar", pemb:"2(18/5)–13/5 = 36/5–13/5 = 23/5 ✓"}
+    ]
+  },
+  {
+    no:19, tipe:"bs",
+    instruksi:"Tentukan BENAR atau SALAH untuk setiap pernyataan berikut!",
+    konteks:"Segitiga siku-siku ABC dengan sudut siku-siku di C. AC = 8 cm dan BC = 6 cm.",
+    pernyataan:[
+      {label:"A", teks:"Panjang AB = 10 cm", jawaban:"Benar", pemb:"AB²=64+36=100 → AB=10 ✓"},
+      {label:"B", teks:"Luas segitiga ABC = 24 cm²", jawaban:"Benar", pemb:"L=½×8×6=24 cm² ✓"},
+      {label:"C", teks:"Keliling segitiga ABC = 26 cm", jawaban:"Salah", pemb:"K=8+6+10=24 cm (bukan 26) ✗"},
+      {label:"D", teks:"(6,8,10) merupakan tripel Pythagoras", jawaban:"Benar", pemb:"6²+8²=36+64=100=10² ✓"}
+    ]
+  },
+  {
+    no:20, tipe:"bs",
+    instruksi:"Tentukan BENAR atau SALAH untuk setiap pernyataan berikut!",
+    konteks:"Sebuah tabungan awal Rp2.000.000 dengan bunga sederhana 5% per tahun.",
+    pernyataan:[
+      {label:"A", teks:"Bunga per tahun adalah Rp100.000", jawaban:"Benar", pemb:"2.000.000 × 5% = 100.000 ✓"},
+      {label:"B", teks:"Setelah 3 tahun, total tabungan = Rp2.300.000", jawaban:"Benar", pemb:"2.000.000 + 300.000 = 2.300.000 ✓"},
+      {label:"C", teks:"Setelah 5 tahun, total tabungan = Rp2.500.000", jawaban:"Benar", pemb:"2.000.000 + 500.000 = 2.500.000 ✓"},
+      {label:"D", teks:"Bunga selama 2 tahun adalah Rp300.000", jawaban:"Salah", pemb:"Bunga 2 tahun = 2×100.000 = 200.000 (bukan 300.000) ✗"}
+    ]
+  }
+];
+
+// ════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════
+let current = 0;
+let answers = new Array(soalData.length).fill(null);
+let submitted = false;
+let timerInterval;
+let timeLeft = 45 * 60;
+
+// ════════════════════════════════════════════════════════
+// TIMER
+// ════════════════════════════════════════════════════════
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const m = String(Math.floor(timeLeft/60)).padStart(2,'0');
+    const s = String(timeLeft%60).padStart(2,'0');
+    document.getElementById('timer').textContent = `${m}:${s}`;
+    if(timeLeft <= 300) document.getElementById('timer').classList.add('urgent');
+    if(timeLeft <= 0) { clearInterval(timerInterval); submitAll(); }
+  }, 1000);
+}
+
+// ════════════════════════════════════════════════════════
+// NAVIGATOR
+// ════════════════════════════════════════════════════════
+function buildNavigator() {
+  const grid = document.getElementById('nav-grid');
+  let html = '';
+  soalData.forEach((s,i) => {
+    const cls = s.tipe==='pgk' ? 'pgk' : s.tipe==='bs' ? 'bs-type' : '';
+    html += `<button class="nav-btn ${cls}" id="nav-${i}" onclick="goTo(${i})">${i+1}</button>`;
+  });
+  html += `<div class="legend" style="grid-column:1/-1">
+    <div class="legend-item"><div class="legend-dot" style="border-color:#0d1b3e;background:#0d1b3e"></div>Sudah dijawab</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:#2563eb;background:#2563eb"></div>Sedang dikerjakan</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:#94a3b8;border-style:dashed"></div>PG Kompleks</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:#94a3b8;border-radius:50%"></div>Benar/Salah</div>
+  </div>`;
+  grid.innerHTML = html;
+}
+
+function updateNavigator() {
+  soalData.forEach((_,i) => {
+    const btn = document.getElementById(`nav-${i}`);
+    btn.classList.remove('answered','active');
+    if(i === current) btn.classList.add('active');
+    else if(answers[i] !== null) btn.classList.add('answered');
+  });
+  // progress
+  const done = answers.filter(a=>a!==null).length;
+  document.getElementById('progress-text').textContent = `Soal ${current+1} dari ${soalData.length}`;
+  document.getElementById('answered-count').textContent = `${done} dijawab`;
+  const pct = ((current+1)/soalData.length)*100;
+  document.getElementById('progress-fill').style.width = pct+'%';
+}
+
+// ════════════════════════════════════════════════════════
+// RENDER SOAL
+// ════════════════════════════════════════════════════════
+function goTo(idx) {
+  current = idx;
+  renderSoal();
+  updateNavigator();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderSoal() {
+  const s = soalData[current];
+  const card = document.getElementById('soal-card');
+  const actions = document.getElementById('actions');
+
+  // TIPE BADGE
+  const tipeBadge = {pg:'🔵 Pilihan Ganda Biasa', pgk:'🟡 PG Kompleks', bs:'🟢 Benar / Salah'};
+  const tipeClass = {pg:'tipe-pg', pgk:'tipe-pgk', bs:'tipe-bs'};
+
+  let html = `
+    <div class="soal-meta">
+      <span class="soal-num">No. ${s.no}</span>
+      <span class="tipe-badge ${tipeClass[s.tipe]}">${tipeBadge[s.tipe]}</span>
+    </div>
+    <div class="konteks-box">${s.konteks.replace(/\n/g,'<br>')}</div>
+  `;
+
+  if(s.instruksi) html += `<div class="instruksi">⚠️ ${s.instruksi}</div>`;
+
+  if(s.tipe === 'pg') {
+    html += `<div class="pertanyaan">${s.tanya}</div><div class="options">`;
+    const labels = ['A','B','C','D'];
+    s.opsi.forEach((o,i) => {
+      const lbl = labels[i];
+      const sel = answers[current] === lbl;
+      const disClass = submitted ? 'disabled' : '';
+      const selClass = sel ? 'selected' : '';
+      html += `<button class="option-btn ${selClass} ${disClass}" onclick="selectPG('${lbl}')" id="opt-${lbl}">
+        <span class="opt-label">${lbl}</span><span>${o}</span>
+      </button>`;
+    });
+    html += `</div>`;
+  }
+  else if(s.tipe === 'pgk') {
+    html += `<div class="pertanyaan">${s.tanya}</div><div class="options">`;
+    const labels = ['A','B','C','D'];
+    const curAns = answers[current] || [];
+    s.opsi.forEach((o,i) => {
+      const lbl = labels[i];
+      const sel = curAns.includes(lbl);
+      const disClass = submitted ? 'disabled' : '';
+      const selClass = sel ? 'selected' : '';
+      html += `<button class="option-btn pgk-opt ${selClass} ${disClass}" onclick="selectPGK('${lbl}')" id="opt-${lbl}">
+        <span class="opt-label">${sel?'✓':lbl}</span><span>${o}</span>
+      </button>`;
+    });
+    html += `</div>`;
+  }
+  else if(s.tipe === 'bs') {
+    const curAns = answers[current] || {};
+    html += `<table class="bs-table">
+      <thead><tr><th>#</th><th>Pernyataan</th><th>Benar</th><th>Salah</th></tr></thead><tbody>`;
+    s.pernyataan.forEach(p => {
+      const v = curAns[p.label] || '';
+      const dis = submitted ? 'disabled' : '';
+      html += `<tr>
+        <td class="bs-label">${p.label}</td>
+        <td>${p.teks}</td>
+        <td>
+          <div class="bs-radio benar">
+            <input type="radio" name="bs-${current}-${p.label}" id="bs-${p.label}-B" value="Benar" ${v==='Benar'?'checked':''} ${dis} onchange="selectBS('${p.label}','Benar')">
+            <label for="bs-${p.label}-B">✓</label>
+          </div>
+        </td>
+        <td>
+          <div class="bs-radio salah">
+            <input type="radio" name="bs-${current}-${p.label}" id="bs-${p.label}-S" value="Salah" ${v==='Salah'?'checked':''} ${dis} onchange="selectBS('${p.label}','Salah')">
+            <label for="bs-${p.label}-S">✗</label>
+          </div>
+        </td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+
+  // PEMBAHASAN (tampil setelah submit)
+  if(submitted) {
+    html += renderPembahasan(s);
+  }
+
+  card.innerHTML = html;
+
+  // ACTIONS
+  let actHtml = '';
+  if(!submitted) {
+    actHtml += `<button class="btn btn-outline" onclick="goTo(${Math.max(0,current-1)})" ${current===0?'disabled':''}>← Sebelumnya</button>`;
+    actHtml += `<button class="btn btn-primary" onclick="goTo(${Math.min(soalData.length-1,current+1)})" ${current===soalData.length-1?'disabled':''}>Selanjutnya →</button>`;
+    actHtml += `<button class="btn btn-accent" onclick="confirmSubmit()" style="margin-left:auto">🏁 Selesai & Kumpulkan</button>`;
+  } else {
+    actHtml += `<button class="btn btn-outline" onclick="goTo(${Math.max(0,current-1)})" ${current===0?'disabled':''}>← Sebelumnya</button>`;
+    actHtml += `<button class="btn btn-primary" onclick="goTo(${Math.min(soalData.length-1,current+1)})" ${current===soalData.length-1?'disabled':''}>Selanjutnya →</button>`;
+  }
+  actions.innerHTML = actHtml;
+}
+
+function renderPembahasan(s) {
+  let html = `<div class="pembahasan show"><div class="pemb-header">💡 Pembahasan</div>`;
+  if(s.tipe !== 'bs') {
+    html += `<div class="rumus-box">🔑 Rumus: ${s.rumus}</div>`;
+    s.langkah.forEach(l => { html += `<div class="step">${l}</div>`; });
+    html += `<div class="jawaban-final">${s.jawabanFinal}</div>`;
+  } else {
+    s.pernyataan.forEach(p => {
+      const cls = p.jawaban==='Benar' ? 'benar':'salah';
+      html += `<div class="bs-pemb-row">
+        <span class="bs-pemb-label">${p.label}.</span>
+        <span class="bs-pemb-jawaban ${cls}">${p.jawaban.toUpperCase()}</span>
+        ${p.pemb}
+      </div>`;
+    });
+  }
+  html += `</div>`;
+  return html;
+}
+
+// ════════════════════════════════════════════════════════
+// ANSWER SELECTION
+// ════════════════════════════════════════════════════════
+function selectPG(lbl) {
+  if(submitted) return;
+  answers[current] = lbl;
+  updateNavigator();
+  renderSoal();
+}
+
+function selectPGK(lbl) {
+  if(submitted) return;
+  if(!answers[current]) answers[current] = [];
+  const arr = answers[current];
+  const idx = arr.indexOf(lbl);
+  if(idx > -1) arr.splice(idx,1); else arr.push(lbl);
+  if(arr.length === 0) answers[current] = null;
+  updateNavigator();
+  renderSoal();
+}
+
+function selectBS(pLabel, val) {
+  if(submitted) return;
+  if(!answers[current]) answers[current] = {};
+  answers[current][pLabel] = val;
+  // check if all answered
+  const s = soalData[current];
+  const allDone = s.pernyataan.every(p => answers[current][p.label]);
+  if(!allDone) answers[current]._partial = true;
+  updateNavigator();
+}
+
+// ════════════════════════════════════════════════════════
+// SUBMIT
+// ════════════════════════════════════════════════════════
+function confirmSubmit() {
+  const done = answers.filter(a=>a!==null).length;
+  const unanswered = soalData.length - done;
+  if(unanswered > 0) {
+    if(!confirm(`Masih ada ${unanswered} soal yang belum dijawab.\nYakin ingin mengumpulkan?`)) return;
+  }
+  submitAll();
+}
+
+function calculateScore() {
+  let correct = 0, total = soalData.length;
+  soalData.forEach((s,i) => {
+    const a = answers[i];
+    if(!a) return;
+    if(s.tipe === 'pg') {
+      if(a === s.jawaban) correct++;
+    } else if(s.tipe === 'pgk') {
+      const sorted = (arr) => [...arr].sort().join(',');
+      if(a && sorted(a) === sorted(s.jawaban)) correct++;
+    } else if(s.tipe === 'bs') {
+      if(a) {
+        const allRight = s.pernyataan.every(p => a[p.label] === p.jawaban);
+        if(allRight) correct++;
+      }
+    }
+  });
+  return { correct, wrong: total - correct - answers.filter(a=>a===null).length,
+           skip: answers.filter(a=>a===null).length, total };
+}
+
+function submitAll() {
+  clearInterval(timerInterval);
+  submitted = true;
+  document.getElementById('soal-area').style.display='none';
+  document.getElementById('nav-grid').style.display='none';
+
+  const {correct, wrong, skip, total} = calculateScore();
+  const score = Math.round((correct/total)*100);
+
+  let emoji, predikat, predikatColor;
+  if(score >= 90) { emoji='🏆'; predikat='Luar Biasa!'; predikatColor='#065f46'; }
+  else if(score >= 75) { emoji='🌟'; predikat='Sangat Bagus!'; predikatColor='#1d4ed8'; }
+  else if(score >= 60) { emoji='👍'; predikat='Cukup Baik'; predikatColor='#b45309'; }
+  else if(score >= 40) { emoji='📚'; predikat='Perlu Belajar Lagi'; predikatColor='#dc2626'; }
+  else { emoji='💪'; predikat='Jangan Menyerah!'; predikatColor='#7c3aed'; }
+
+  const rs = document.getElementById('result-screen');
+  rs.style.display = 'block';
+  rs.innerHTML = `
+    <div class="result-emoji">${emoji}</div>
+    <div class="result-title">Latihan Selesai!</div>
+    <div class="result-sub">TKA Matematika SMP – 20 Soal</div>
+    <div class="score-big">${score}</div>
+    <div class="score-label">dari 100 poin</div>
+    <span class="predikat" style="background:${predikatColor}20;color:${predikatColor};border:2px solid ${predikatColor}40">${predikat}</span>
+    <div class="stats-grid">
+      <div class="stat-box correct-box"><div class="stat-num">${correct}</div><div class="stat-lbl">✅ Benar</div></div>
+      <div class="stat-box wrong-box"><div class="stat-num">${wrong}</div><div class="stat-lbl">❌ Salah</div></div>
+      <div class="stat-box skip-box"><div class="stat-num">${skip}</div><div class="stat-lbl">⏭ Dilewati</div></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="showReview()">📋 Lihat Pembahasan</button>
+      <button class="btn btn-accent" onclick="location.reload()">🔄 Coba Lagi</button>
+    </div>
+  `;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showReview() {
+  const rev = document.getElementById('review-section');
+  rev.style.display = 'block';
+  let html = `<h2 style="font-size:18px;font-weight:800;color:var(--navy);margin-bottom:16px">📋 Review Pembahasan Lengkap</h2>`;
+
+  soalData.forEach((s,i) => {
+    const a = answers[i];
+    let status = 'skip';
+    if(a) {
+      if(s.tipe==='pg') status = a===s.jawaban ? 'correct':'wrong';
+      else if(s.tipe==='pgk') {
+        const sorted=(arr)=>[...arr].sort().join(',');
+        status = (a && sorted(a)===sorted(s.jawaban)) ? 'correct':'wrong';
+      }
+      else if(s.tipe==='bs') {
+        const allRight = s.pernyataan.every(p=>a[p.label]===p.jawaban);
+        status = allRight ? 'correct':'wrong';
+      }
+    }
+    const tipeBadge = {pg:'PG Biasa', pgk:'PG Kompleks', bs:'Benar/Salah'};
+    html += `<div class="review-item ${status}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span class="soal-num">No. ${s.no}</span>
+        <span class="tipe-badge tipe-${s.tipe}" style="font-size:10px">${tipeBadge[s.tipe]}</span>
+        <span style="margin-left:auto;font-size:13px;font-weight:700;color:${status==='correct'?'var(--green)':status==='wrong'?'var(--red)':'var(--muted)'}">
+          ${status==='correct'?'✅ Benar':status==='wrong'?'❌ Salah':'⏭ Dilewati'}
+        </span>
+      </div>
+      <div style="font-size:13.5px;color:var(--text);margin-bottom:8px;line-height:1.6">${s.konteks.replace(/\n/g,'<br>')}</div>
+      ${renderPembahasan(s)}
+    </div>`;
+  });
+
+  rev.innerHTML = html;
+  rev.scrollIntoView({behavior:'smooth'});
+}
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+buildNavigator();
+updateNavigator();
+renderSoal();
+startTimer();
+</script>
+</body>
+</html>
